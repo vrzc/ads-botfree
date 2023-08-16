@@ -1,8 +1,9 @@
-import { ChannelType, GuildMember, Message } from "discord.js";
+import { ChannelType, GuildMember, Message, TextChannel } from "discord.js";
 import { checkPermissions, getGuildOption, sendTimedMessage } from "../functions";
-import { BotEvent } from "../types";
+import { BotEvent, Embed } from "../types";
 import mongoose from "mongoose";
 import { PREFIX } from "../config.json"
+import user from "../schemas/User";
 const event: BotEvent = {
     name: "messageCreate",
     execute: async (message: Message) => {
@@ -14,10 +15,14 @@ const event: BotEvent = {
                 if (guildPrefix) prefix = guildPrefix;
         }
         if(message.channel.id === '1140895340229308426') {
-            const filter = (res: Message): boolean => res.author.id == '282859044593598464' && res.content == `**:moneybag: | ${(message.guild?.members.cache.get(message.author.id) as GuildMember).user.username}, has transferred \`$950\` to <@!642513832270626817> **`
-            message.channel.awaitMessages({ filter , max: 1, time: 240000, errors: ['time']}).then(colct => {
-
-            })
+            let data = await user.findOne({ userID: message.author.id });
+            if(data) {
+                const filter = (res: Message): boolean => res.author.id == '282859044593598464' && res.content == `**:moneybag: | ${(message.guild?.members.cache.get(message.author.id) as GuildMember).user.username}, has transferred \`$950\` to <@!642513832270626817> **`
+                message.channel.awaitMessages({ filter , max: 1, time: 240000, errors: ['time']}).then(colct => {
+                    (message.guild?.channels.cache.get('1140918570650439690') as TextChannel).send({ content: `@everyone , \n **${data?.userData?.link.substring(1, data.userData.link.length - 1)} \n ${data?.userData.description.substring(1, data.userData.description.length - 1)}**`})
+                });
+                data.delete();
+            }
         }
 
         if (!message.content.startsWith(prefix)) return;

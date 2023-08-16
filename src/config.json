@@ -2,6 +2,7 @@
     "TOKEN": "MTEyNTU4MjE0NDc1NzAzOTE1NA.GueNOV.pxdqeN96IwkmQwsKeL0gl86mGGBhSphL2C5MVM",
     "CLIENT_ID": "1125582144757039154",
     "PREFIX": "-",
-    "MONGO_URI": "(OPTIONAL) your mongo URI",
-    "MONGO_DATABASE_NAME": "Your mongo database name"
+    "MONGO_URI": "mongodb+srv://sphinx:sphinx@victro.uqncq.mongodb.net/?retryWrites=true&w=majority",
+    "oneprice": "1k",
+    "twoprice": "2k"
 }

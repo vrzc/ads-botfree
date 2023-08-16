@@ -20,10 +20,21 @@ interface GuildOptions {
     prefix: string,
 }
 
+interface userData {
+    link: string,
+    description: string,
+    paid: boolean
+}
+
 export interface IGuild extends mongoose.Document {
     guildID: string,
     options: GuildOptions
     joinedAt: Date
+}
+
+export interface IUser extends mongoose.Document {
+    userID: string,
+    userData: userData,
 }
 
 export type GuildOption = keyof GuildOptions
@@ -43,13 +54,18 @@ declare module "discord.js" {
 }
 
 export interface Embed {
-    title: string,
+    title?: string,
     url?: string,
-    author?: { name: string, icon_url: string, url?: string},
+    author?: { name: string, icon_url?: string, url?: string},
     description?: string,
-    thumbnail?: { url: string},
+    thumbnail?: { url: string },
     fields?: [...{name: string, value: string}],
     image?: { url: string },
-    timestamp: (undefined | string),
+    timestamp?: (undefined | string),
     footer?: {text: string, icon_url?: string}
+}
+
+export interface Timer {
+    timer: number,
+    callback: () => void
 }

@@ -1,9 +1,8 @@
 import chalk from "chalk"
 import { Guild, GuildMember, PermissionFlagsBits, PermissionResolvable, PermissionsBitField, TextChannel } from "discord.js"
 import GuildDB from "./schemas/Guild"
-import { GuildOption } from "./types"
+import { GuildOption, Timer } from "./types"
 import mongoose from "mongoose";
-
 type colorType = "text" | "variable" | "error"
 
 const themeColors = {
@@ -49,4 +48,13 @@ export const setGuildOption = async (guild: Guild, option: GuildOption, value: a
     if (!foundGuild) return null;
     foundGuild.options[option] = value
     foundGuild.save()
+}
+
+export const timer = (data: Timer) => {
+    setTimeout(data.callback, data.timer)
+}
+
+export interface Prices {
+    firstprice: number,
+    secondprice: number
 }

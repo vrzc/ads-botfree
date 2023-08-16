@@ -15,5 +15,4 @@ readdirSync(handlersDir).forEach(handler => {
     if (!handler.endsWith(".js")) return;
     require(`${handlersDir}/${handler}`)(client)
 })
-console.log(TOKEN)
 client.login(TOKEN)

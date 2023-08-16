@@ -1,6 +1,7 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, GuildMember, Interaction, ModalBuilder, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, GuildMember, GuildMemberManager, GuildMemberRoleManager, Interaction, ModalBuilder, RoleManager, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 import { BotEvent, Embed } from "../types";
-
+import user from "../schemas/User";
+import {timer} from "../functions"
 const event : BotEvent = {
     name: "interactionCreate",
     execute: async (interaction: Interaction) => {
@@ -42,6 +43,9 @@ const event : BotEvent = {
                 mainComponent.addComponents(advertLink as any, advertDescription) // any for useless types!
                 await interaction.showModal(mainComponent)
             } else if(interaction.customId == 'accept') {
+                if(interaction.user.id != interaction.message.embeds[0].footer?.text) return;
+                interaction.channel?.messages.cache.get(interaction.message.id)?.edit({ content: "The Submission has been sent successfully!", embeds: [], components: []})
+
                 let acceptslashdecline = new ActionRowBuilder().addComponents(
                     new ButtonBuilder().setCustomId('acceptoffer').setLabel('Accept').setStyle(ButtonStyle.Success)
                 ).addComponents(
@@ -49,31 +53,50 @@ const event : BotEvent = {
                 )
                 let mainChannel = interaction.client.channels.cache.get('1140877841416847380') as TextChannel
                 mainChannel.send({embeds: [interaction.message.embeds[0]], components: [acceptslashdecline as any]}) // Again :/
+                
             } else if(interaction.customId == 'acceptoffer') {
-                let channelLink = (interaction.guild?.channels.cache.get('1140877947197210694') as TextChannel).createInvite()
+                if(!(interaction.member?.roles as GuildMemberRoleManager).cache.has('1086464897702973480')) return;
+                let channelLink = await (interaction.guild?.channels.cache.get('1140895340229308426') as TextChannel).createInvite()
                 let mainUser = interaction.guild?.members.cache.get(interaction.message.embeds[0].footer?.text as any) as GuildMember
-                mainUser.send({content: `${mainUser}, Please pay for your advert! **discord.gg/${(await channelLink).code}** By clicking "joined" it'll redirect you to the paying channel`}) // This automatically redirects them to the paying channel!
+                let embed: Embed = {title: `Please Transfer \`1000\``, description: "```c <@642513832270626817> 10000 ```", footer: {text: '⏰ | You have 5 minutes to pay for the advert!'}}
+                mainUser.send({embeds: [embed], content: `discord.gg/${channelLink.code} . By clicking "joined" it'll redirect you to the channel you have to pay in`}) // This automatically redirects them to the paying channel!
                 interaction.reply({content: "The user will be notified soon.", embeds: [], components: []})
+                timer({timer: 500000, callback: () => 
+                    mainUser.send({content: "The timer has finished, DON'T pay now. Please contact an admin to redo this process."})
+                })
+                let data = await user.findOne({userID: interaction.user.id });
+                if(!data || data === null) {
+                    let newUser = new user({
+                        userID: interaction.message.embeds[0].footer?.text,
+                        userData: {link: interaction.message.embeds[0].fields[0].value, description: interaction.message.embeds[0].fields[1].value}
+                    })
+                    newUser.save()
+                }
                 // ;(await interaction.channel?.messages.fetch(interaction.message.url))?.edit({ content: "The user will be notified soon!", embeds: [], components: []})
+            } else if(interaction.customId == 'decline') {
+                interaction.reply({ content: "Decliend", ephemeral: true })
+            } else if(interaction.customId == 'declineoffer') {
+                interaction.reply({content: "Declined."})
+                ;(await interaction.fetchReply(interaction.message.id)).delete()
+                let mainUser = interaction.guild?.members.cache.get(interaction.message.embeds[0].footer?.text as any) as GuildMember
+                mainUser.send({content: "Your Submission has been declined by one of our admins. To Redo Please Contact us"})
             }
         }
         if(interaction.isModalSubmit()) {
             if(interaction.customId == 'mainmodal') {
                 let mainEmbed: Embed = {
                     title: interaction.user.username + " Submission",
-                    fields: [{name: 'Advert Link', value: "`" + interaction.fields.getTextInputValue('link') + "`"}, {name: 'Advert Description', value: "`" + interaction.fields.getTextInputValue('description') + "`"}],
+                    fields: [{name: 'Advert Link', value: "`" + interaction.fields.getTextInputValue('link') + "`"}, {name: 'Advert Description', value: interaction.fields.getTextInputValue('description')}],
                     timestamp: new Date().toISOString(),
-                    footer: {text: interaction.user.id}
+                    footer: {text: interaction.user.id},
                 }
                 let mainButtons = new ActionRowBuilder().addComponents(
                     new ButtonBuilder().setCustomId("accept").setLabel("Send").setStyle(ButtonStyle.Success)
                 ).addComponents(
-                    new ButtonBuilder().setCustomId('decline').setLabel('Redo').setStyle(ButtonStyle.Danger)
+                    new ButtonBuilder().setCustomId('decline').setLabel('Decline').setStyle(ButtonStyle.Danger)
                 )
-                await interaction.reply({ ephemeral: true, embeds: [mainEmbed], components: [mainButtons as any]}) // Any again cuz ts types is crazy !
-                setTimeout(async() => {
-                    await interaction.editReply({content: "Your Submission has been sent!", embeds: [], components: []})
-                }, 2000)
+                await interaction.reply({ embeds: [mainEmbed], components: [mainButtons as any]}) // Any again cuz ts types is crazy !
+
             }
         }
     }
