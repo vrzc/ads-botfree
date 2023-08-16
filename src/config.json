@@ -3,6 +3,6 @@
     "CLIENT_ID": "1125582144757039154",
     "PREFIX": "-",
     "MONGO_URI": "mongodb+srv://sphinx:sphinx@victro.uqncq.mongodb.net/?retryWrites=true&w=majority",
-    "oneprice": "1k",
-    "twoprice": "2k"
+    "oneprice": {"price": "1k", "description": "Package description"},
+    "twoprice": {"price": "2k", "description": "Package description"}
 }

@@ -11,10 +11,10 @@ const AdvertCommand: SlashCommand = {
               .setRequired(true)
               .setChoices({
                 name: "First Package",
-                value: oneprice.toString()
+                value: oneprice.price.toString()
               }, {
                 name: "Second Package",
-                value: twoprice.toString()
+                value: twoprice.price.toString()
               })
           }).setDescription("What a nice choice"),
     cooldown: 10,
@@ -22,13 +22,14 @@ const AdvertCommand: SlashCommand = {
         let choice = interaction.options.getString('package')
         let packageDescription;
         switch(choice) {
-            case oneprice.toString():
-                packageDescription = "The Description of this package"
+            case oneprice.price.toString():
+                packageDescription = oneprice?.description
                 break;
-            case twoprice.toString():
-                packageDescription = "The Description of the Second Package"
+            case twoprice.price.toString():
+                packageDescription = twoprice?.description
                 break;
         }
+        console.log(packageDescription, oneprice)
         let mainEmbed: Embed = {
             title: "Guild Advert",
             author: {
@@ -41,7 +42,7 @@ const AdvertCommand: SlashCommand = {
                 value: (parseInt(choice?.replace('k', '') || "0") * 1000) * (1 + (5/100))
             }, {
                 name: "Package Description",
-                value: packageDescription
+                value: packageDescription || "No Description was specified"
             }],
             timestamp: new Date().toISOString(),
             thumbnail: {url: interaction.guild?.iconURL() as string}
@@ -53,7 +54,7 @@ const AdvertCommand: SlashCommand = {
             .setLabel("Start!")
             .setStyle(ButtonStyle.Success)
         )
-        interaction.reply({ embeds: [mainEmbed], components: [actionRow as any ], ephemeral: true }); // Any Cuz types are crazy when it comes to "types"
+        interaction.reply({ embeds: [mainEmbed], components: [actionRow as any ]}); // Any Cuz types are crazy when it comes to "types"
     }
 }
 

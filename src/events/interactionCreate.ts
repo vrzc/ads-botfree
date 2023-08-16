@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, GuildMember, GuildMemberManager, GuildMemberRoleManager, Interaction, ModalBuilder, RoleManager, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonComponent, ButtonStyle, GuildMember, GuildMemberRoleManager, Interaction, ModalBuilder, RoleManager, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 import { BotEvent, Embed } from "../types";
 import user from "../schemas/User";
 import {timer} from "../functions"
@@ -37,6 +37,7 @@ const event : BotEvent = {
             }
         } else if(interaction.isButton()) {
             if(interaction.customId == 'main') {
+                interaction.channel?.messages.cache.get(interaction.message.id)?.delete()
                 let mainComponent = new ModalBuilder().setCustomId('mainmodal').setTitle("Advert Customization");
                 const advertLink = new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('link').setLabel("Your Advert URL").setPlaceholder("https://discord.gg/invLINK | https://youtube.com/rickroll").setStyle(TextInputStyle.Short));
                 const advertDescription = new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('description').setLabel("Your Advert Description").setPlaceholder("Hallo Guys this is my really cool server! plz join").setStyle(TextInputStyle.Paragraph));
