@@ -17,7 +17,7 @@
         "chalk": "^4.1.2",
         "discord.js": "^14.12.1",
         "dotenv": "^16.0.2",
-        "mongoose": "^6.5.4"
+        "mongoose": "^6.11.3"
     },
     "devDependencies": {
         "typescript": "^4.8.2"
