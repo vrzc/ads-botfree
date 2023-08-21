@@ -26,5 +26,5 @@ const ClearCommand : SlashCommand = {
     },
     cooldown: 10
 }
-
+//test
 export default ClearCommand;
