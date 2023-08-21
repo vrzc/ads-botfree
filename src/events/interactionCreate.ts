@@ -2,6 +2,9 @@ import { ActionRowBuilder, ButtonBuilder, ButtonComponent, ButtonStyle, GuildMem
 import { BotEvent, Embed } from "../types";
 import user from "../schemas/User";
 import {timer} from "../functions"
+import {oneprice, twoprice, owner, paymentChannel, applicationChannel} from "../config.json"
+import { codeBlock } from "@discordjs/builders"
+let packageType: any;
 const event : BotEvent = {
     name: "interactionCreate",
     execute: async (interaction: Interaction) => {
@@ -37,6 +40,7 @@ const event : BotEvent = {
             }
         } else if(interaction.isButton()) {
             if(interaction.customId == 'main') {
+                packageType = interaction.message?.embeds[0].fields[0] as {value: string, name: string, inline: boolean}
                 interaction.channel?.messages.cache.get(interaction.message.id)?.delete()
                 let mainComponent = new ModalBuilder().setCustomId('mainmodal').setTitle("Advert Customization");
                 const advertLink = new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('link').setLabel("Your Advert URL").setPlaceholder("https://discord.gg/invLINK | https://youtube.com/rickroll").setStyle(TextInputStyle.Short));
@@ -52,14 +56,17 @@ const event : BotEvent = {
                 ).addComponents(
                     new ButtonBuilder().setCustomId('declineoffer').setLabel('Decline').setStyle(ButtonStyle.Danger)
                 )
-                let mainChannel = interaction.client.channels.cache.get('1140877841416847380') as TextChannel
+                let mainChannel = interaction.client.channels.cache.get(applicationChannel) as TextChannel
                 mainChannel.send({embeds: [interaction.message.embeds[0]], components: [acceptslashdecline as any]}) // Again :/
                 
             } else if(interaction.customId == 'acceptoffer') {
                 if(!(interaction.member?.roles as GuildMemberRoleManager).cache.has('1086464897702973480')) return;
-                let channelLink = await (interaction.guild?.channels.cache.get('1140895340229308426') as TextChannel).createInvite()
+                let channelLink = await (interaction.guild?.channels.cache.get(paymentChannel) as TextChannel).createInvite()
                 let mainUser = interaction.guild?.members.cache.get(interaction.message.embeds[0].footer?.text as any) as GuildMember
-                let embed: Embed = {title: `Please Transfer \`1000\``, description: "```c <@642513832270626817> 10000 ```", footer: {text: '⏰ | You have 5 minutes to pay for the advert!'}}
+                console.log(packageType, packageType === oneprice.price ? (parseInt(oneprice?.price.replace('k', '') || "0") * 1000) * (1 + (5/100)) : packageType === twoprice.price ? (parseInt(twoprice?.price.replace('k', '') || "0") * 1000) * (1 + (5/100)) : "")
+                let embed: Embed = {title: `Please Transfer \`${packageType.value === oneprice.price ? (parseInt(oneprice?.price.replace('k', '') || "0") * 1000) * (1 + (5/100)) : packageType.value === twoprice.price ? (parseInt(twoprice?.price.replace('k', '') || "0") * 1000) * (1 + (5/100)) : ""}\``, 
+                description: codeBlock(`c <@${owner}> ${packageType.value === oneprice.price ? (parseInt(oneprice?.price.replace('k', '') || "0") * 1000) * (1 + (5/100)) : packageType.value === twoprice.price ? (parseInt(twoprice?.price.replace('k', '') || "0") * 1000) * (1 + (5/100)) : ""}`),
+                footer: {text: '⏰ | You have 5 minutes to pay for the advert!'}}
                 mainUser.send({embeds: [embed], content: `discord.gg/${channelLink.code} . By clicking "joined" it'll redirect you to the channel you have to pay in`}) // This automatically redirects them to the paying channel!
                 interaction.reply({content: "The user will be notified soon.", embeds: [], components: []})
                 timer({timer: 500000, callback: () => 
@@ -85,6 +92,7 @@ const event : BotEvent = {
         }
         if(interaction.isModalSubmit()) {
             if(interaction.customId == 'mainmodal') {
+                console.log(packageType)
                 let mainEmbed: Embed = {
                     title: interaction.user.username + " Submission",
                     fields: [{name: 'Advert Link', value: "`" + interaction.fields.getTextInputValue('link') + "`"}, {name: 'Advert Description', value: interaction.fields.getTextInputValue('description')}],
@@ -97,7 +105,6 @@ const event : BotEvent = {
                     new ButtonBuilder().setCustomId('decline').setLabel('Decline').setStyle(ButtonStyle.Danger)
                 )
                 await interaction.reply({ embeds: [mainEmbed], components: [mainButtons as any]}) // Any again cuz ts types is crazy !
-
             }
         }
     }

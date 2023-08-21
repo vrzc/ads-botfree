@@ -29,6 +29,7 @@ const AdvertCommand: SlashCommand = {
                 packageDescription = twoprice?.description
                 break;
         }
+        
         console.log(packageDescription, oneprice)
         let mainEmbed: Embed = {
             title: "Guild Advert",
@@ -38,6 +39,10 @@ const AdvertCommand: SlashCommand = {
             },
             description: 'Start Advertising your Guild NOW',
             fields: [{
+                name: "Package Type",
+                value: choice
+            },
+                {
                 name: "Costs",
                 value: (parseInt(choice?.replace('k', '') || "0") * 1000) * (1 + (5/100))
             }, {

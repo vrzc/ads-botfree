@@ -1,8 +1,11 @@
 {
-    "TOKEN": "MTEyNTU4MjE0NDc1NzAzOTE1NA.GueNOV.pxdqeN96IwkmQwsKeL0gl86mGGBhSphL2C5MVM",
+    "TOKEN": "MTEyNTU4MjE0NDc1NzAzOTE1NA.G6HO-g.MMDeCPe4ZzwblZBLCGACaUfZSNxqFkhAi_NnI4",
     "CLIENT_ID": "1125582144757039154",
     "PREFIX": "-",
     "MONGO_URI": "mongodb+srv://sphinx:sphinx@victro.uqncq.mongodb.net/?retryWrites=true&w=majority",
     "oneprice": {"price": "1k", "description": "Package description"},
-    "twoprice": {"price": "2k", "description": "Package description"}
+    "twoprice": {"price": "2k", "description": "Package description"},
+    "owner": "642513832270626817",
+    "paymentChannel": "1140895340229308426",
+    "applicationChannel": "1140877841416847380"
 }
